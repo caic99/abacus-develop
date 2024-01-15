@@ -1,9 +1,9 @@
 FROM nvidia/cuda:12.2.0-devel-ubuntu22.04
 
 RUN apt update && apt install -y --no-install-recommends \
-    libopenblas-openmp-dev liblapack-dev libscalapack-mpi-dev libelpa-dev libfftw3-dev libcereal-dev \
+    libopenblas-openmp-dev liblapack-dev libscalapack-mpi-dev libfftw3-dev libcereal-dev libopenmpi-dev\
     libxc-dev libgtest-dev libgmock-dev python3-numpy \
-    bc cmake git g++ make bc time sudo unzip vim wget
+    bc cmake git g++ gfortran make bc time sudo unzip vim wget libtool-bin
 
 ENV GIT_SSL_NO_VERIFY=true TERM=xterm-256color \
     OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 \
@@ -13,6 +13,22 @@ RUN git clone https://github.com/llohse/libnpy.git && \
     cp libnpy/include/npy.hpp /usr/local/include && \
     rm -r libnpy
 
+# https://elpa.mpcdf.mpg.de/software/tarball-archive/ELPA_TARBALL_ARCHIVE.html
+# set NVCCFLAGS for additional architectures
+RUN cd /tmp && \
+    ELPA_VER=2022.11.001 && \
+    wget -q https://elpa.mpcdf.mpg.de/software/tarball-archive/Releases/$ELPA_VER/elpa-$ELPA_VER.tar.gz && \
+    tar xzf elpa-$ELPA_VER.tar.gz  && rm elpa-$ELPA_VER.tar.gz && \
+    cd elpa-$ELPA_VER && mkdir build && cd build && \
+    ../configure CXX=mpic++ CFLAGS="-O3 -march=native" FCFLAGS="-O3" LDFLAGS="-L/usr/local/cuda/lib64" NVCCFLAGS="-arch sm_75 -arch sm_80" --enable-openmp --enable-nvidia-gpu --with-NVIDIA-GPU-compute-capability="sm_70" && \
+    make -j`nproc` && \
+    make PREFIX=/usr/local install && \
+    ln -s /usr/local/include/elpa_openmp-$ELPA_VER/elpa /usr/local/include/ && \
+    cd /tmp && rm -rf elpa-$ELPA_VER
+
+# https://gitlab.mpcdf.mpg.de/elpa/elpa/-/blob/master/documentation/USERS_GUIDE.md#v-influencing-default-values-with-environment-variables
+ENV ELPA_DEFAULT_complex_kernel=ELPA_2STAGE_COMPLEX_NVIDIA_GPU ELPA_DEFAULT_nvidia-gpu=1
+
 ADD https://api.github.com/repos/deepmodeling/abacus-develop/git/refs/heads/develop /dev/null
 
 RUN git clone https://github.com/deepmodeling/abacus-develop.git --depth 1 && \
@@ -21,5 +37,21 @@ RUN git clone https://github.com/deepmodeling/abacus-develop.git --depth 1 && \
     cmake --build build -j`nproc` && \
     cmake --install build && \
     rm -rf build && \
-    cd .. 
+    cd ..
     #&& rm -rf abacus-develop
+
+#  cd /abacus-develop/tests/performance/P101_si32_lcao
+#  env ELPA_DEFAULT_nvidia-gpu=1 ELPA_DEFAULT_complex_kernel=ELPA_2STAGE_COMPLEX_NVIDIA_GPU abacus
+#  I.
+#      ELPA: Warning, GPU kernel only works with block size 2^n (n = 1, 2, ..., 10)!
+#      (Hangs at the second step of SCF)
+#  II. INPUT: nb2d 64
+#      ../src/GPU/CUDA/cudaFunctions.cu:366 Error in cudaMemcpy: unspecified launch failure
+#      elpa_invert_trm: memcpy a-> d_dev:         421  error in cuda_memcpy when copying
+#      STOP 1
+#  III. use gdb
+#      elpa_invert_trm_a_h_a_dc
+#      elpa_invert_triangular
+#      ELPA_Solver::decomposeRightMatrix
+#      ELPA_Solver::generalized_eigenvector https://github.com/deepmodeling/abacus-develop/blob/20dbe14874e9f0bee4f285db78fe8a70a6b5cfdd/source/module_hsolver/genelpa/elpa_new_complex.cpp#L253
+#  IV. env ELPA_DEFAULT_nvidia-gpu=1 ELPA_DEFAULT_complex_kernel=ELPA_2STAGE_COMPLEX_NVIDIA_GPU OMP_NUM_THREADS=1 mpirun -n 4 abacus
