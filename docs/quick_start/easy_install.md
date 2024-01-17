@@ -6,22 +6,22 @@ This guide helps you install ABACUS with basic features. **For DeePKS, DeePMD an
 
 To compile ABACUS, please make sure that the following prerequisites are present:
 
-- [CMake](https://cmake.org/) >= 3.16 .
-- C++ compiler, supporting C++11. You can use [Intel® C++ compiler](https://software.intel.com/enus/c-compilers) or [GCC](https://gcc.gnu.org/).
+-   [CMake](https://cmake.org/) >= 3.16 .
+-   C++ compiler, supporting C++11. You can use [Intel® C++ compiler](https://software.intel.com/enus/c-compilers) or [GCC](https://gcc.gnu.org/).
 
 > GCC version 5 or later is always required. Intel compilers also use GCC headers and libraries[(ref)](https://www.intel.com/content/www/us/en/develop/documentation/cpp-compiler-developer-guide-and-reference/top/compatibility-and-portability/gcc-compatibility-and-interoperability.html#gcc-compatibility-and-interoperability_GUID-52CB6FE0-83DA-4028-9EF4-0DFAF1652736).
 
-- MPI library. The recommended versions are [Intel MPI](https://software.intel.com/enus/mpi-library), [MPICH](https://www.mpich.org/) or [Open MPI](https://www.open-mpi.org/).
-- Fortran compiler if you are building `BLAS`, `LAPACK`, `ScaLAPACK`, and `ELPA` from source file. You can use [Intel® Fortran Compiler](https://www.intel.com/content/www/us/en/developer/tools/oneapi/fortran-compiler.html) or [GFortran](https://gcc.gnu.org/fortran/).
-- [BLAS](http://www.netlib.org/blas/). You can use [OpenBLAS](https://www.openblas.net/).
-- [LAPACK](http://www.netlib.org/lapack/).
-- [FFTW3](http://www.fftw.org/).
+-   MPI library. The recommended versions are [Intel MPI](https://software.intel.com/enus/mpi-library), [MPICH](https://www.mpich.org/) or [Open MPI](https://www.open-mpi.org/).
+-   Fortran compiler if you are building `BLAS`, `LAPACK`, `ScaLAPACK`, and `ELPA` from source file. You can use [Intel® Fortran Compiler](https://www.intel.com/content/www/us/en/developer/tools/oneapi/fortran-compiler.html) or [GFortran](https://gcc.gnu.org/fortran/).
+-   [BLAS](http://www.netlib.org/blas/). You can use [OpenBLAS](https://www.openblas.net/).
+-   [LAPACK](http://www.netlib.org/lapack/).
+-   [FFTW3](http://www.fftw.org/).
 
 These requirements support the calculation of plane-wave basis in ABACUS. For LCAO basis calculation, additional components are required:
 
-- [ScaLAPACK](http://www.netlib.org/scalapack/).
-- [CEREAL](https://uscilab.github.io/cereal/).
-- [ELPA](https://elpa.mpcdf.mpg.de/) >= 2017 (optional).
+-   [ScaLAPACK](http://www.netlib.org/scalapack/).
+-   [CEREAL](https://uscilab.github.io/cereal/).
+-   [ELPA](https://elpa.mpcdf.mpg.de/) >= 2017 (optional).
 
 ## Install requirements
 
@@ -34,6 +34,7 @@ sudo apt update && sudo apt install -y libopenblas-openmp-dev liblapack-dev libs
 > Installing ELPA by apt only matches requirements on Ubuntu 22.04. For earlier linux distributions, you should build ELPA from source.
 
 We recommend [Intel® oneAPI toolkit](https://software.intel.com/content/www/us/en/develop/tools/oneapi/commercial-base-hpc.html) (former Intel® Parallel Studio) as toolchain. The [Intel® oneAPI Base Toolkit](https://software.intel.com/content/www/us/en/develop/tools/oneapi/all-toolkits.html#base-kit) contains Intel® oneAPI Math Kernel Library (aka `MKL`), including `BLAS`, `LAPACK`, `ScaLAPACK` and `FFTW3`. The [Intel® oneAPI HPC Toolkit](https://software.intel.com/content/www/us/en/develop/tools/oneapi/all-toolkits.html#hpc-kit) contains Intel® MPI Library, and C++ compiler(including MPI compiler).
+
 > Please note that building `elpa` with a different MPI library may cause conflict.
 > Don't forget to [set environment variables](https://software.intel.com/content/www/us/en/develop/documentation/get-started-with-intel-oneapi-render-linux/top/configure-your-system.html) before you start! `cmake` will use Intel MKL if the environment variable `MKLROOT` is set.
 
@@ -51,16 +52,15 @@ A Tutorial for using this toolchain can be accessed in [bohrium-notebook](https:
 
 > Notice: the toolchain is under development, please let me know if you encounter any problem in using this toolchain.
 
-
 ## Get ABACUS source code
 
 Of course a copy of ABACUS source code is required, which can be obtained via one of the following choices:
 
-- Clone the whole repo with git: `git clone https://github.com/deepmodeling/abacus-develop.git`
-- Clone the minimum required part of repo: `git clone https://github.com/deepmodeling/abacus-develop.git --depth=1`
-- Download the latest source code without git: `wget https://github.com/deepmodeling/abacus-develop/archive/refs/heads/develop.zip`
-- Get the source code of a stable version [here](https://github.com/deepmodeling/abacus-develop/releases)
-- If you have connection issues accessing GitHub, please try out our official [Gitee repo](https://gitee.com/deepmodeling/abacus-develop/): e.g. `git clone https://gitee.com/deepmodeling/abacus-develop.git`
+-   Clone the whole repo with git: `git clone https://github.com/deepmodeling/abacus-develop.git`
+-   Clone the minimum required part of repo: `git clone https://github.com/deepmodeling/abacus-develop.git --depth=1`
+-   Download the latest source code without git: `wget https://github.com/deepmodeling/abacus-develop/archive/refs/heads/develop.zip`
+-   Get the source code of a stable version [here](https://github.com/deepmodeling/abacus-develop/releases)
+-   If you have connection issues accessing GitHub, please try out our official [Gitee repo](https://gitee.com/deepmodeling/abacus-develop/): e.g. `git clone https://gitee.com/deepmodeling/abacus-develop.git`
 
 ### Update to latest release
 
@@ -102,34 +102,36 @@ cmake -B build [-D <var>=<value>] ...
 
 Here, 'build' is the path for building ABACUS; and '-D' is used for setting up some variables for CMake indicating optional components or requirement positions.
 
-- `CMAKE_INSTALL_PREFIX`: the path of ABACUS binary to install; `/usr/local/bin/abacus` by default
-- Compilers
-  - `CMAKE_CXX_COMPILER`: C++ compiler; usually `g++`(GNU C++ compiler) or `icpx`(Intel C++ compiler). Can also set from environment variable `CXX`. It is OK to use MPI compiler here.
-  - `MPI_CXX_COMPILER`: MPI wrapper for C++ compiler; usually `mpicxx` or `mpiicpc`(for Intel MPI).
-- Requirements: Unless indicated, CMake will try to find under default paths.
-  - `MKLROOT`: If environment variable `MKLROOT` exists, `cmake` will take MKL as a preference, i.e. not using `LAPACK`, `ScaLAPACK` and `FFTW`. To disable MKL, unset environment variable `MKLROOT`, or pass `-DMKLROOT=OFF` to `cmake`.
-  - `LAPACK_DIR`: Path to OpenBLAS library `libopenblas.so`(including BLAS and LAPACK)
-  - `SCALAPACK_DIR`: Path to ScaLAPACK library `libscalapack.so`
-  - `ELPA_DIR`: Path to ELPA install directory; should be the folder containing 'include' and 'lib'.
-  > Note: If you install ELPA from source, please add a symlink to avoid the additional include file folder with version name: `ln -s elpa/include/elpa-2021.05.002/elpa elpa/include/elpa`. This is a known behavior of ELPA.
+-   `CMAKE_INSTALL_PREFIX`: the path of ABACUS binary to install; `/usr/local/bin/abacus` by default
+-   Compilers
+    -   `CMAKE_CXX_COMPILER`: C++ compiler; usually `g++`(GNU C++ compiler) or `icpx`(Intel C++ compiler). Can also set from environment variable `CXX`. It is OK to use MPI compiler here.
+    -   `MPI_CXX_COMPILER`: MPI wrapper for C++ compiler; usually `mpicxx` or `mpiicpc`(for Intel MPI).
+-   Requirements: Unless indicated, CMake will try to find under default paths.
 
-  - `FFTW3_DIR`: Path to FFTW3.
-  - `CEREAL_INCLUDE_DIR`: Path to the parent folder of `cereal/cereal.hpp`. Will download from GitHub if absent.
-  - `Libxc_DIR`: (Optional) Path to Libxc.
-  > Note: Building Libxc from source with Makefile does NOT support using it in CMake here. Please compile Libxc with CMake instead.
-  - `LIBRI_DIR`: (Optional) Path to LibRI.
-  - `LIBCOMM_DIR`: (Optional) Path to LibComm.
+    -   `MKLROOT`: If environment variable `MKLROOT` exists, `cmake` will take MKL as a preference, i.e. not using `LAPACK`, `ScaLAPACK` and `FFTW`. To disable MKL, unset environment variable `MKLROOT`, or pass `-DMKLROOT=OFF` to `cmake`.
+    -   `LAPACK_DIR`: Path to OpenBLAS library `libopenblas.so`(including BLAS and LAPACK)
+    -   `SCALAPACK_DIR`: Path to ScaLAPACK library `libscalapack.so`
+    -   `ELPA_DIR`: Path to ELPA install directory; should be the folder containing 'include' and 'lib'.
 
-- Components: The values of these variables should be 'ON', '1' or 'OFF', '0'. The default values are given below.
-  - `ENABLE_LCAO=ON`: Enable LCAO calculation. If SCALAPACK, ELPA or CEREAL is absent and only require plane-wave calculations, the feature of calculating LCAO basis can be turned off.
-  - `ENABLE_LIBXC=OFF`: [Enable Libxc](../advanced/install.md#add-libxc-support) to suppport variety of functionals. If `Libxc_DIR` is defined, `ENABLE_LIBXC` will set to 'ON'.
-  - `ENABLE_LIBRI=OFF`: [Enable LibRI](../advanced/install.md#add-libri-support) to suppport variety of functionals. If `LIBRI_DIR` and `LIBCOMM_DIR` is defined, `ENABLE_LIBRI` will set to 'ON'.
-  - `USE_OPENMP=ON`: Enable OpenMP support. Building ABACUS without OpenMP is not fully tested yet.
-  - `BUILD_TESTING=OFF`: [Build unit tests](../advanced/install.md#build-unit-tests).
-  - `ENABLE_MPI=ON`: Enable MPI parallel compilation. If set to `OFF`, a serial version of ABACUS with PW basis only will be compiled. Currently serial version of ABACUS with LCAO basis is not supported yet, so `ENABLE_LCAO` will be automatically set to `OFF`.
-  - `ENABLE_COVERAGE=OFF`: Build ABACUS executable supporting [coverage analysis](../CONTRIBUTING.md#generating-code-coverage-report). This feature has a drastic impact on performance.
-  - `ENABLE_ASAN=OFF`: Build with Address Sanitizer. This feature would help detecting memory problems.
-  - `USE_ELPA=ON`: Use ELPA library in LCAO calculations. If this value is set to OFF, ABACUS can be compiled without ELPA library.
+        > Note: If you install ELPA from source, please add a symlink to avoid the additional include file folder with version name: `ln -s elpa/include/elpa-2021.05.002/elpa elpa/include/elpa`. This is a known behavior of ELPA.
+
+    -   `FFTW3_DIR`: Path to FFTW3.
+    -   `CEREAL_INCLUDE_DIR`: Path to the parent folder of `cereal/cereal.hpp`. Will download from GitHub if absent.
+    -   `Libxc_DIR`: (Optional) Path to Libxc.
+        > Note: Building Libxc from source with Makefile does NOT support using it in CMake here. Please compile Libxc with CMake instead.
+    -   `LIBRI_DIR`: (Optional) Path to LibRI.
+    -   `LIBCOMM_DIR`: (Optional) Path to LibComm.
+
+-   Components: The values of these variables should be 'ON', '1' or 'OFF', '0'. The default values are given below.
+    -   `ENABLE_LCAO=ON`: Enable LCAO calculation. If SCALAPACK, ELPA or CEREAL is absent and only require plane-wave calculations, the feature of calculating LCAO basis can be turned off.
+    -   `ENABLE_LIBXC=OFF`: [Enable Libxc](../advanced/install.md#add-libxc-support) to suppport variety of functionals. If `Libxc_DIR` is defined, `ENABLE_LIBXC` will set to 'ON'.
+    -   `ENABLE_LIBRI=OFF`: [Enable LibRI](../advanced/install.md#add-libri-support) to suppport variety of functionals. If `LIBRI_DIR` and `LIBCOMM_DIR` is defined, `ENABLE_LIBRI` will set to 'ON'.
+    -   `USE_OPENMP=ON`: Enable OpenMP support. Building ABACUS without OpenMP is not fully tested yet.
+    -   `BUILD_TESTING=OFF`: [Build unit tests](../advanced/install.md#build-unit-tests).
+    -   `ENABLE_MPI=ON`: Enable MPI parallel compilation. If set to `OFF`, a serial version of ABACUS with PW basis only will be compiled. Currently serial version of ABACUS with LCAO basis is not supported yet, so `ENABLE_LCAO` will be automatically set to `OFF`.
+    -   `ENABLE_COVERAGE=OFF`: Build ABACUS executable supporting [coverage analysis](../CONTRIBUTING.md#generating-code-coverage-report). This feature has a drastic impact on performance.
+    -   `ENABLE_ASAN=OFF`: Build with Address Sanitizer. This feature would help detecting memory problems.
+    -   `USE_ELPA=ON`: Use ELPA library in LCAO calculations. If this value is set to OFF, ABACUS can be compiled without ELPA library.
 
 Here is an example:
 
@@ -174,7 +176,7 @@ Use 4 MPI processes to run, for example:
 mpirun -n 4 abacus
 ```
 
-> The total thread count(i.e. OpenMP per-process thread count * MPI process count) should not exceed the number of cores in your machine.
+> The total thread count(i.e. OpenMP per-process thread count \* MPI process count) should not exceed the number of cores in your machine.
 
 Please refer to [hands-on guide](./hands_on.md) for more instructions.
 
