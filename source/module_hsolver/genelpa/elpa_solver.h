@@ -21,7 +21,7 @@ class ELPA_Solver
                 const int nacols,
                 const int* desc,
                 const int* otherParameter);
-
+    ~ELPA_Solver();
     int eigenvector(double* A, double* EigenValue, double* EigenVector);
     int generalized_eigenvector(double* A, double* B, int& DecomposedState, double* EigenValue, double* EigenVector);
     int eigenvector(std::complex<double>* A, double* EigenValue, std::complex<double>* EigenVector);
@@ -47,7 +47,6 @@ class ELPA_Solver
                 std::complex<double>* EigenVector,
                 double& maxError,
                 double& meanError);
-    void exit();
 
   private:
     const int CHOLESKY_CRITICAL_SIZE = 1000;

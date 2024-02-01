@@ -154,6 +154,17 @@ ELPA_Solver::ELPA_Solver(const bool isReal,
     this->setLoglevel(loglevel);
 }
 
+ELPA_Solver::~ELPA_Solver()
+{
+    // delete[] dwork;
+    // delete[] zwork;
+    if (loglevel > 2)
+        logfile.close();
+    int error;
+    elpa_deallocate(NEW_ELPA_HANDLE_POOL[handle_id], &error);
+    elpa_uninit(&error);
+}
+
 void ELPA_Solver::setLoglevel(int loglevel)
 {
     int error;
@@ -196,17 +207,6 @@ void ELPA_Solver::setQR(int useQR)
     this->useQR = useQR;
     int error;
     elpa_set(NEW_ELPA_HANDLE_POOL[handle_id], "qr", useQR, &error);
-}
-
-void ELPA_Solver::exit()
-{
-    // delete[] dwork;
-    // delete[] zwork;
-    if (loglevel > 2)
-        logfile.close();
-    int error;
-    elpa_deallocate(NEW_ELPA_HANDLE_POOL[handle_id], &error);
-    elpa_uninit(&error);
 }
 
 int ELPA_Solver::read_cpuflag()

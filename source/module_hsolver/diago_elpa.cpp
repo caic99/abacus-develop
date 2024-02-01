@@ -37,7 +37,6 @@ namespace hsolver
     ModuleBase::timer::tick("DiagoElpa", "elpa_solve");
     es.generalized_eigenvector(h_mat.p, s_mat.p, this->DecomposedState, eigen.data(), psi.get_pointer());
     ModuleBase::timer::tick("DiagoElpa", "elpa_solve");
-    es.exit();
 
     const int inc = 1;
     BlasConnector::copy(GlobalV::NBANDS, eigen.data(), inc, eigenvalue_in, inc);
@@ -63,7 +62,6 @@ namespace hsolver
     ModuleBase::timer::tick("DiagoElpa", "elpa_solve");
     es.generalized_eigenvector(h_mat.p, s_mat.p, this->DecomposedState, eigen.data(), psi.get_pointer());
     ModuleBase::timer::tick("DiagoElpa", "elpa_solve");
-    es.exit();
 
     const int inc = 1;
     ModuleBase::GlobalFunc::OUT(GlobalV::ofs_running, "K-S equation was solved by genelpa2");
