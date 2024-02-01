@@ -11,7 +11,7 @@
 #include <mpi.h>
 #include <regex>
 
-extern std::map<int, elpa_t> NEW_ELPA_HANDLE_POOL;
+extern elpa_t handle;
 
 int ELPA_Solver::eigenvector(double* A, double* EigenValue, double* EigenVector)
 {
@@ -23,7 +23,7 @@ int ELPA_Solver::eigenvector(double* A, double* EigenValue, double* EigenVector)
         t = -1;
         timer(myid, "elpa_eigenvectors_all_host_arrays_d", "1", t);
     }
-    elpa_eigenvectors(NEW_ELPA_HANDLE_POOL[handle_id], A, EigenValue, EigenVector, &info);
+    elpa_eigenvectors(handle, A, EigenValue, EigenVector, &info);
     if (loglevel > 0 && myid == 0)
     {
         timer(myid, "elpa_eigenvectors_all_host_arrays_d", "1", t);
@@ -191,7 +191,7 @@ int ELPA_Solver::decomposeRightMatrix(double* B, double* EigenValue, double* Eig
                 t = -1;
                 timer(myid, "elpa_cholesky_d", "2", t);
             }
-            elpa_cholesky(NEW_ELPA_HANDLE_POOL[handle_id], B, &info);
+            elpa_cholesky(handle, B, &info);
             if (loglevel > 1)
             {
                 timer(myid, "elpa_cholesky_d", "2", t);
@@ -208,7 +208,7 @@ int ELPA_Solver::decomposeRightMatrix(double* B, double* EigenValue, double* Eig
             t = -1;
             timer(myid, "elpa_cholesky_d", "1", t);
         }
-        elpa_cholesky(NEW_ELPA_HANDLE_POOL[handle_id], B, &info);
+        elpa_cholesky(handle, B, &info);
         if (loglevel > 1)
         {
             timer(myid, "elpa_cholesky_d", "1", t);
@@ -263,7 +263,7 @@ int ELPA_Solver::decomposeRightMatrix(double* B, double* EigenValue, double* Eig
             t = -1;
             timer(myid, "invert U", "1", t);
         }
-        elpa_invert_triangular(NEW_ELPA_HANDLE_POOL[handle_id], B, &info);
+        elpa_invert_triangular(handle, B, &info);
         if (loglevel > 1)
         {
             timer(myid, "invert U", "1", t);
@@ -281,7 +281,7 @@ int ELPA_Solver::decomposeRightMatrix(double* B, double* EigenValue, double* Eig
             t = -1;
             timer(myid, "calculate eigenvalue and eigenvector of B", "1", t);
         }
-        // elpa_eigenvectors_all_host_arrays_d(NEW_ELPA_HANDLE_POOL[handle_id], B, EigenValue, EigenVector, &info);
+        // elpa_eigenvectors_all_host_arrays_d(handle, B, EigenValue, EigenVector, &info);
         info = eigenvector(B, EigenValue, EigenVector);
         if (loglevel > 1)
         {

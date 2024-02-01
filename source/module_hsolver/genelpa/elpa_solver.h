@@ -78,7 +78,6 @@ class ELPA_Solver
     int mpi_comm_rows;
     int mpi_comm_cols;
     // for new elpa handle
-    int handle_id;
 
     // toolbox
     int read_cpuflag();

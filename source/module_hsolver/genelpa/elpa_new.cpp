@@ -18,7 +18,7 @@
 #include <omp.h>
 #endif
 
-std::map<int, elpa_t> NEW_ELPA_HANDLE_POOL;
+elpa_t handle;
 
 ELPA_Solver::ELPA_Solver(const bool isReal,
                          const MPI_Comm comm,
@@ -51,8 +51,6 @@ ELPA_Solver::ELPA_Solver(const bool isReal,
     // cout<<"kernel id is inited as "<<kernel_id<<"\n";
     int error;
 
-    static int total_handle = 0;
-
 #ifdef _OPENMP
     int num_threads = omp_get_max_threads();
 #else
@@ -61,27 +59,23 @@ ELPA_Solver::ELPA_Solver(const bool isReal,
 
     elpa_init(20210430);
 
-    handle_id = ++total_handle;
-    elpa_t handle;
-
     handle = elpa_allocate(&error);
-    NEW_ELPA_HANDLE_POOL[handle_id] = handle;
 
 #ifdef _OPENMP
-    elpa_set_integer(NEW_ELPA_HANDLE_POOL[handle_id], "omp_threads", num_threads, &error);
+    elpa_set_integer(handle, "omp_threads", num_threads, &error);
 #endif
-    elpa_set_integer(NEW_ELPA_HANDLE_POOL[handle_id], "na", nFull, &error);
-    elpa_set_integer(NEW_ELPA_HANDLE_POOL[handle_id], "nev", nev, &error);
-    elpa_set_integer(NEW_ELPA_HANDLE_POOL[handle_id], "local_nrows", narows, &error);
-    elpa_set_integer(NEW_ELPA_HANDLE_POOL[handle_id], "local_ncols", nacols, &error);
-    elpa_set_integer(NEW_ELPA_HANDLE_POOL[handle_id], "nblk", nblk, &error);
-    elpa_set_integer(NEW_ELPA_HANDLE_POOL[handle_id], "mpi_comm_parent", MPI_Comm_c2f(comm), &error);
-    elpa_set_integer(NEW_ELPA_HANDLE_POOL[handle_id], "process_row", myprow, &error);
-    elpa_set_integer(NEW_ELPA_HANDLE_POOL[handle_id], "process_col", mypcol, &error);
+    elpa_set_integer(handle, "na", nFull, &error);
+    elpa_set_integer(handle, "nev", nev, &error);
+    elpa_set_integer(handle, "local_nrows", narows, &error);
+    elpa_set_integer(handle, "local_ncols", nacols, &error);
+    elpa_set_integer(handle, "nblk", nblk, &error);
+    elpa_set_integer(handle, "mpi_comm_parent", MPI_Comm_c2f(comm), &error);
+    elpa_set_integer(handle, "process_row", myprow, &error);
+    elpa_set_integer(handle, "process_col", mypcol, &error);
 
-    error = elpa_setup(NEW_ELPA_HANDLE_POOL[handle_id]);
+    error = elpa_setup(handle);
     // cout<<"elpa handle is setup\n";
-    elpa_set_integer(NEW_ELPA_HANDLE_POOL[handle_id], "solver", ELPA_SOLVER_2STAGE, &error);
+    elpa_set_integer(handle, "solver", ELPA_SOLVER_2STAGE, &error);
     this->setQR(0);
     this->setKernel(isReal, kernel_id);
     // cout<<"elpa kernel is setup\n";
@@ -129,26 +123,23 @@ ELPA_Solver::ELPA_Solver(const bool isReal,
 
     elpa_init(20210430);
 
-    handle_id = ++total_handle;
-    elpa_t handle;
     handle = elpa_allocate(&error);
-    NEW_ELPA_HANDLE_POOL[handle_id] = handle;
 
 #ifdef _OPENMP
-    elpa_set(NEW_ELPA_HANDLE_POOL[handle_id], "omp_threads", num_threads, &error);
+    elpa_set(handle, "omp_threads", num_threads, &error);
 #endif
-    elpa_set(NEW_ELPA_HANDLE_POOL[handle_id], "na", nFull, &error);
-    elpa_set(NEW_ELPA_HANDLE_POOL[handle_id], "nev", nev, &error);
-    elpa_set(NEW_ELPA_HANDLE_POOL[handle_id], "local_nrows", narows, &error);
-    elpa_set(NEW_ELPA_HANDLE_POOL[handle_id], "local_ncols", nacols, &error);
-    elpa_set(NEW_ELPA_HANDLE_POOL[handle_id], "nblk", nblk, &error);
-    elpa_set(NEW_ELPA_HANDLE_POOL[handle_id], "mpi_comm_parent", MPI_Comm_c2f(comm), &error);
-    elpa_set(NEW_ELPA_HANDLE_POOL[handle_id], "process_row", myprow, &error);
-    elpa_set(NEW_ELPA_HANDLE_POOL[handle_id], "process_col", mypcol, &error);
-    elpa_set(NEW_ELPA_HANDLE_POOL[handle_id], "blacs_context", cblacs_ctxt, &error);
-    elpa_set(NEW_ELPA_HANDLE_POOL[handle_id], "solver", ELPA_SOLVER_2STAGE, &error);
-    elpa_set(NEW_ELPA_HANDLE_POOL[handle_id], "debug", wantDebug, &error);
-    elpa_set(NEW_ELPA_HANDLE_POOL[handle_id], "qr", useQR, &error);
+    elpa_set(handle, "na", nFull, &error);
+    elpa_set(handle, "nev", nev, &error);
+    elpa_set(handle, "local_nrows", narows, &error);
+    elpa_set(handle, "local_ncols", nacols, &error);
+    elpa_set(handle, "nblk", nblk, &error);
+    elpa_set(handle, "mpi_comm_parent", MPI_Comm_c2f(comm), &error);
+    elpa_set(handle, "process_row", myprow, &error);
+    elpa_set(handle, "process_col", mypcol, &error);
+    elpa_set(handle, "blacs_context", cblacs_ctxt, &error);
+    elpa_set(handle, "solver", ELPA_SOLVER_2STAGE, &error);
+    elpa_set(handle, "debug", wantDebug, &error);
+    elpa_set(handle, "qr", useQR, &error);
     this->setQR(useQR);
     this->setKernel(isReal, kernel_id);
     this->setLoglevel(loglevel);
@@ -161,7 +152,7 @@ ELPA_Solver::~ELPA_Solver()
     if (loglevel > 2)
         logfile.close();
     int error;
-    elpa_deallocate(NEW_ELPA_HANDLE_POOL[handle_id], &error);
+    elpa_deallocate(handle, &error);
     elpa_uninit(&error);
 }
 
@@ -174,8 +165,8 @@ void ELPA_Solver::setLoglevel(int loglevel)
     if (loglevel >= 2)
     {
         wantDebug = 1;
-        elpa_set(NEW_ELPA_HANDLE_POOL[handle_id], "verbose", 1, &error);
-        elpa_set(NEW_ELPA_HANDLE_POOL[handle_id], "debug", wantDebug, &error);
+        elpa_set(handle, "verbose", 1, &error);
+        elpa_set(handle, "debug", wantDebug, &error);
         if (!isLogfileInited)
         {
             std::stringstream logfilename;
@@ -197,16 +188,16 @@ void ELPA_Solver::setKernel(bool isReal, int kernel)
     this->kernel_id = kernel;
     int error;
     if (isReal)
-        elpa_set(NEW_ELPA_HANDLE_POOL[handle_id], "real_kernel", kernel, &error);
+        elpa_set(handle, "real_kernel", kernel, &error);
     else
-        elpa_set(NEW_ELPA_HANDLE_POOL[handle_id], "complex_kernel", kernel, &error);
+        elpa_set(handle, "complex_kernel", kernel, &error);
 }
 
 void ELPA_Solver::setQR(int useQR)
 {
     this->useQR = useQR;
     int error;
-    elpa_set(NEW_ELPA_HANDLE_POOL[handle_id], "qr", useQR, &error);
+    elpa_set(handle, "qr", useQR, &error);
 }
 
 int ELPA_Solver::read_cpuflag()
