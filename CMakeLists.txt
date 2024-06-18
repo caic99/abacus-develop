@@ -212,10 +212,12 @@ if(ENABLE_LCAO)
   if(ENABLE_FFT_TWO_CENTER)
     add_compile_definitions(USE_NEW_TWO_CENTER)
   endif()
-  
+
   if(ENABLE_PEXSI)
     find_package(PEXSI REQUIRED)
-    target_link_libraries(${ABACUS_BIN_NAME} ${PEXSI_LIBRARY} ${SuperLU_DIST_LIBRARY} ${ParMETIS_LIBRARY} ${METIS_LIBRARY} pexsi)
+    target_link_libraries(
+      ${ABACUS_BIN_NAME} ${PEXSI_LIBRARY} ${SuperLU_DIST_LIBRARY}
+      ${ParMETIS_LIBRARY} ${METIS_LIBRARY} pexsi)
     include_directories(${PEXSI_INCLUDE_DIR} ${ParMETIS_INCLUDE_DIR})
     add_compile_definitions(__PEXSI)
     set(CMAKE_CXX_STANDARD 14)
@@ -265,9 +267,7 @@ if(CMAKE_CUDA_COMPILER)
   endif()
 else() # CUDA not found
   if(USE_CUDA)
-    message(
-      FATAL_ERROR
-        "USE_CUDA is set but no CUDA components found.")
+    message(FATAL_ERROR "USE_CUDA is set but no CUDA components found.")
   endif()
 endif()
 
@@ -304,18 +304,22 @@ if(USE_CUDA)
   endif()
   enable_language(CUDA)
   # ${ABACUS_BIN_NAME} is added before CUDA is enabled
-  set_property(TARGET ${ABACUS_BIN_NAME}
-               PROPERTY CUDA_ARCHITECTURES ${CMAKE_CUDA_ARCHITECTURES})
+  set_property(TARGET ${ABACUS_BIN_NAME} PROPERTY CUDA_ARCHITECTURES
+                                                  ${CMAKE_CUDA_ARCHITECTURES})
   target_link_libraries(${ABACUS_BIN_NAME} -lcudart -lnvToolsExt)
   include_directories(${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
   if(USE_CUDA)
     add_compile_definitions(__CUDA)
     add_compile_definitions(__UT_USE_CUDA)
-    if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-      set(CMAKE_CUDA_FLAGS_DEBUG "${CMAKE_CUDA_FLAGS_DEBUG} -g -G" CACHE STRING "CUDA flags for debug build" FORCE)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+      set(CMAKE_CUDA_FLAGS_DEBUG
+          "${CMAKE_CUDA_FLAGS_DEBUG} -g -G"
+          CACHE STRING "CUDA flags for debug build" FORCE)
     endif()
-    if (USE_OPENMP AND OpenMP_CXX_FOUND)
-      set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Xcompiler=${OpenMP_CXX_FLAGS}" CACHE STRING "CUDA flags" FORCE)
+    if(USE_OPENMP AND OpenMP_CXX_FOUND)
+      set(CMAKE_CUDA_FLAGS
+          "${CMAKE_CUDA_FLAGS} -Xcompiler=${OpenMP_CXX_FLAGS}"
+          CACHE STRING "CUDA flags" FORCE)
     endif()
   endif()
 endif()
@@ -463,18 +467,14 @@ if(ENABLE_DEEPKS)
   add_compile_definitions(__DEEPKS)
 endif()
 
-if (ENABLE_CNPY)
-  find_path(cnpy_SOURCE_DIR
-    cnpy.h
-    HINTS ${libnpy_INCLUDE_DIR}
-  )
+if(ENABLE_CNPY)
+  find_path(cnpy_SOURCE_DIR cnpy.h HINTS ${libnpy_INCLUDE_DIR})
   if(NOT cnpy_SOURCE_DIR)
     include(FetchContent)
     FetchContent_Declare(
       cnpy
       GIT_REPOSITORY https://github.com/rogersce/cnpy.git
-      GIT_PROGRESS TRUE
-    )
+      GIT_PROGRESS TRUE)
     FetchContent_MakeAvailable(cnpy)
   else()
     include_directories(${cnpy_INCLUDE_DIR})
@@ -647,8 +647,7 @@ if(BUILD_TESTING)
     target_link_libraries(${UT_TARGET} ${UT_LIBS} Threads::Threads
                           GTest::gtest_main GTest::gmock_main)
     if(ENABLE_GOOGLEBENCH)
-      target_link_libraries(
-        ${UT_TARGET} benchmark::benchmark)
+      target_link_libraries(${UT_TARGET} benchmark::benchmark)
     endif()
 
     if(USE_OPENMP)
@@ -719,9 +718,8 @@ if(ENABLE_LIBRI)
   target_link_libraries(${ABACUS_BIN_NAME} ri)
 endif()
 
-install(PROGRAMS ${ABACUS_BIN_PATH}
-        TYPE BIN
-        # DESTINATION ${CMAKE_INSTALL_BINDIR}
+install(PROGRAMS ${ABACUS_BIN_PATH} TYPE BIN # DESTINATION
+                                             # ${CMAKE_INSTALL_BINDIR}
 )
 
 if(ENABLE_COVERAGE)
